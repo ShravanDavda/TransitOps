@@ -1,16 +1,51 @@
-import { Bell, ChevronDown, Menu, Search } from "lucide-react";
+import {
+  Bell,
+  ChevronDown,
+  Menu,
+  Search,
+} from "lucide-react";
+
+const pageTitles = {
+  dashboard: {
+    title: "Dashboard",
+    description: "Overview of your fleet operations",
+  },
+  vehicles: {
+    title: "Vehicles",
+    description: "Manage and monitor your fleet",
+  },
+  drivers: {
+    title: "Drivers",
+    description: "Manage drivers and availability",
+  },
+  trips: {
+    title: "Trips",
+    description: "Plan and monitor fleet trips",
+  },
+  maintenance: {
+    title: "Maintenance",
+    description: "Track vehicle service and maintenance",
+  },
+  fuel: {
+    title: "Fuel & Expenses",
+    description: "Monitor operational costs and expenses",
+  },
+  analytics: {
+    title: "Analytics",
+    description: "Review fleet performance and insights",
+  },
+  settings: {
+    title: "Settings",
+    description: "Configure your TransitOps workspace",
+  },
+};
 
 function Navbar({
+  activePage = "dashboard",
   onMenuClick,
-  userName = "Fleet Manager",
-  userRole = "Administrator",
 }) {
-  const initials = userName
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const currentPage =
+    pageTitles[activePage] || pageTitles.dashboard;
 
   return (
     <header className="navbar">
@@ -21,47 +56,55 @@ function Navbar({
           onClick={onMenuClick}
           aria-label="Open navigation menu"
         >
-          <Menu size={22} />
+          <Menu size={21} />
         </button>
 
+        <div className="navbar__page-info">
+          <h2>{currentPage.title}</h2>
+          <p>{currentPage.description}</p>
+        </div>
+      </div>
+
+      <div className="navbar__right">
         <div className="navbar__search">
           <Search
-            className="navbar__search-icon"
-            size={18}
+            size={17}
             strokeWidth={1.8}
+            aria-hidden="true"
           />
 
           <input
             type="search"
-            placeholder="Search fleet operations..."
-            aria-label="Search fleet operations"
+            placeholder="Search..."
+            aria-label="Search"
           />
         </div>
-      </div>
 
-      <div className="navbar__actions">
         <button
           type="button"
-          className="navbar__notification-button"
+          className="navbar__icon-button"
           aria-label="Notifications"
         >
-          <Bell size={20} strokeWidth={1.8} />
+          <Bell size={19} strokeWidth={1.8} />
+
           <span className="navbar__notification-dot" />
         </button>
 
-        <div className="navbar__divider" />
+        <button
+          type="button"
+          className="navbar__profile"
+        >
+          <span className="navbar__avatar">
+            AD
+          </span>
 
-        <button type="button" className="navbar__profile">
-          <div className="navbar__avatar">{initials}</div>
-
-          <div className="navbar__user-info">
-            <span className="navbar__user-name">{userName}</span>
-            <span className="navbar__user-role">{userRole}</span>
-          </div>
+          <span className="navbar__profile-info">
+            <strong>Admin</strong>
+            <small>Fleet Manager</small>
+          </span>
 
           <ChevronDown
-            className="navbar__profile-chevron"
-            size={17}
+            size={16}
             strokeWidth={1.8}
           />
         </button>

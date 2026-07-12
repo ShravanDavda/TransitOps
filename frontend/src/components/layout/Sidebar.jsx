@@ -1,142 +1,140 @@
 import {
+  BarChart3,
+  Fuel,
   LayoutDashboard,
+  Route,
+  Settings,
   Truck,
   Users,
-  Route,
   Wrench,
-  Fuel,
-  ChartNoAxesCombined,
-  Settings,
   X,
 } from "lucide-react";
 
 const navigationItems = [
   {
+    id: "dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
-    path: "/dashboard",
   },
   {
+    id: "vehicles",
     label: "Vehicles",
     icon: Truck,
-    path: "/vehicles",
   },
   {
+    id: "drivers",
     label: "Drivers",
     icon: Users,
-    path: "/drivers",
   },
   {
+    id: "trips",
     label: "Trips",
     icon: Route,
-    path: "/trips",
   },
   {
+    id: "maintenance",
     label: "Maintenance",
     icon: Wrench,
-    path: "/maintenance",
   },
   {
+    id: "fuel",
     label: "Fuel & Expenses",
     icon: Fuel,
-    path: "/fuel-expenses",
   },
   {
+    id: "analytics",
     label: "Analytics",
-    icon: ChartNoAxesCombined,
-    path: "/analytics",
+    icon: BarChart3,
   },
 ];
 
 function Sidebar({
-  activePath = "/dashboard",
+  activePage,
   onNavigate,
   isOpen = false,
   onClose,
 }) {
-  const handleNavigation = (path) => {
-    if (onNavigate) {
-      onNavigate(path);
-    }
-
-    if (onClose) {
-      onClose();
-    }
-  };
-
   return (
-    <>
-      {isOpen && (
-        <button
-          type="button"
-          aria-label="Close navigation overlay"
-          onClick={onClose}
-          className="sidebar-overlay"
-        />
-      )}
-
-      <aside className={`sidebar ${isOpen ? "sidebar--open" : ""}`}>
+    <aside
+      className={`sidebar ${
+        isOpen ? "sidebar--open" : ""
+      }`}
+    >
+      <div className="sidebar__header">
         <div className="sidebar__brand">
           <div className="sidebar__brand-icon">
-            <Truck size={22} />
+            <Truck size={21} strokeWidth={2} />
           </div>
 
-          <div>
-            <h1 className="sidebar__brand-title">TransitOps</h1>
-            <p className="sidebar__brand-subtitle">Fleet Intelligence</p>
+          <div className="sidebar__brand-text">
+            <strong>TransitOps</strong>
+            <span>Fleet Management</span>
           </div>
-
-          <button
-            type="button"
-            className="sidebar__close"
-            onClick={onClose}
-            aria-label="Close sidebar"
-          >
-            <X size={20} />
-          </button>
         </div>
 
-        <nav className="sidebar__navigation" aria-label="Main navigation">
-          <p className="sidebar__section-label">OPERATIONS</p>
+        <button
+          type="button"
+          className="sidebar__close"
+          onClick={onClose}
+          aria-label="Close navigation menu"
+        >
+          <X size={20} />
+        </button>
+      </div>
 
-          <div className="sidebar__nav-list">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activePath === item.path;
+      <div className="sidebar__section-label">
+        Operations
+      </div>
 
-              return (
-                <button
-                  key={item.path}
-                  type="button"
-                  className={`sidebar__nav-item ${
-                    isActive ? "sidebar__nav-item--active" : ""
-                  }`}
-                  onClick={() => handleNavigation(item.path)}
-                >
-                  <Icon size={19} strokeWidth={1.8} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
+      <nav
+        className="sidebar__navigation"
+        aria-label="Main navigation"
+      >
+        {navigationItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activePage === item.id;
 
-        <div className="sidebar__footer">
-          <button
-            type="button"
-            className={`sidebar__nav-item ${
-              activePath === "/settings"
-                ? "sidebar__nav-item--active"
-                : ""
-            }`}
-            onClick={() => handleNavigation("/settings")}
-          >
-            <Settings size={19} strokeWidth={1.8} />
-            <span>Settings</span>
-          </button>
-        </div>
-      </aside>
-    </>
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`sidebar__item ${
+                isActive ? "sidebar__item--active" : ""
+              }`}
+              onClick={() => onNavigate(item.id)}
+            >
+              <Icon
+                size={19}
+                strokeWidth={isActive ? 2.2 : 1.8}
+              />
+
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="sidebar__footer">
+        <button
+          type="button"
+          className={`sidebar__item ${
+            activePage === "settings"
+              ? "sidebar__item--active"
+              : ""
+          }`}
+          onClick={() => onNavigate("settings")}
+        >
+          <Settings
+            size={19}
+            strokeWidth={
+              activePage === "settings" ? 2.2 : 1.8
+            }
+          />
+
+          <span>Settings</span>
+        </button>
+      </div>
+    </aside>
   );
 }
 
