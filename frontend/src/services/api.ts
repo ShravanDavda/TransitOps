@@ -12,6 +12,7 @@ import {
   INITIAL_EXPENSES
 } from '../utils/constants';
 
+import axios from "./axios";
 // Key names for LocalStorage
 const KEYS = {
   VEHICLES: 'transitops_vehicles',
@@ -58,196 +59,123 @@ const saveToStorage = <T>(key: string, data: T[]) => {
 
 export const api = {
   // --- VEHICLES API ---
-  getVehicles: async (): Promise<Vehicle[]> => {
-    await delay(200);
-    return getFromStorage<Vehicle>(KEYS.VEHICLES);
-  },
+ getVehicles: async () => {
+  const response = await axios.get("/vehicles");
 
-  createVehicle: async (vehicle: Omit<Vehicle, 'id'>): Promise<Vehicle> => {
-    await delay(300);
-    const list = getFromStorage<Vehicle>(KEYS.VEHICLES);
-    const newId = `VEH-0${list.length + 1}`;
-    
-    // Validation
-    if (!vehicle.registration || !vehicle.model || !vehicle.type) {
-      throw new Error('400: Required fields are missing');
-    }
-    if (vehicle.capacity <= 0 || vehicle.odometer < 0) {
-      throw new Error('400: Capacity and odometer must be positive values');
-    }
+  return response.data.vehicles.map((vehicle: any) => ({
+    id: vehicle.id,
+    registration: vehicle.registration_number,
+    model: vehicle.vehicle_name,
+    type: vehicle.type,
+    fuelType: "Diesel",
+    capacity: vehicle.max_load_capacity,
+    odometer: vehicle.odometer,
+    status: vehicle.status,
+  }));
+},
 
-    const newVehicle: Vehicle = {
-      ...vehicle,
-      id: newId
-    };
-    
-    list.push(newVehicle);
-    saveToStorage(KEYS.VEHICLES, list);
-    return newVehicle;
-  },
+createVehicle: async (vehicle: any) => {
+  const response = await axios.post("/vehicles", {
+    registration_number: vehicle.registration,
+    vehicle_name: vehicle.model,
+    model: vehicle.model,
+    type: vehicle.type,
+    region: vehicle.region || "Gujarat",
+    max_load_capacity: vehicle.capacity,
+    odometer: vehicle.odometer,
+    acquisition_cost: vehicle.acquisitionCost || 0,
+    status: vehicle.status,
+  });
 
-  updateVehicle: async (id: string, updated: Partial<Vehicle>): Promise<Vehicle> => {
-    await delay(250);
-    const list = getFromStorage<Vehicle>(KEYS.VEHICLES);
-    const index = list.findIndex((v) => v.id === id);
-    if (index === -1) {
-      throw new Error('404: Vehicle not found');
-    }
+  return response.data.vehicle;
+},
 
-    list[index] = { ...list[index], ...updated };
-    saveToStorage(KEYS.VEHICLES, list);
-    return list[index];
-  },
+updateVehicle: async (id: number, vehicle: any) => {
+  const response = await axios.put(`/vehicles/${id}`, {
+    registration_number: vehicle.registration,
+    vehicle_name: vehicle.model,
+    model: vehicle.model,
+    type: vehicle.type,
+    region: vehicle.region || "Gujarat",
+    max_load_capacity: vehicle.capacity,
+    odometer: vehicle.odometer,
+    acquisition_cost: vehicle.acquisitionCost || 0,
+    status: vehicle.status,
+  });
 
-  deleteVehicle: async (id: string): Promise<boolean> => {
-    await delay(200);
-    const list = getFromStorage<Vehicle>(KEYS.VEHICLES);
-    const filtered = list.filter((v) => v.id !== id);
-    if (filtered.length === list.length) {
-      throw new Error('404: Vehicle not found');
-    }
-    saveToStorage(KEYS.VEHICLES, filtered);
-    return true;
-  },
+  return response.data.vehicle;
+},
 
+deleteVehicle: async (id: number) => {
+  await axios.delete(`/vehicles/${id}`);
+  return true;
+},
 
   // --- DRIVERS API ---
-  getDrivers: async (): Promise<Driver[]> => {
-    await delay(200);
-    return getFromStorage<Driver>(KEYS.DRIVERS);
-  },
+  getDrivers: async () => {
+  const response = await axios.get("/drivers");
 
-  createDriver: async (driver: Omit<Driver, 'id' | 'completedTrips'>): Promise<Driver> => {
-    await delay(300);
-    const list = getFromStorage<Driver>(KEYS.DRIVERS);
-    const newId = `DRV-0${list.length + 1}`;
+  return response.data.drivers.map((driver: any) => ({
+    id: driver.id,
+    name: driver.full_name,
+    phone: driver.phone_number,
+    licenseNumber: driver.license_number,
+    licenseExpiry: driver.license_expiry,
+    status: driver.status,
+    completedTrips: driver.completed_trips || 0,
+  }));
+},
 
-    if (!driver.name || !driver.phone || !driver.licenseNumber) {
-      throw new Error('400: Required fields are missing');
-    }
+  createDriver: async (driver: any) => {
+  const response = await axios.post("/drivers", {
+    full_name: driver.name,
+    phone_number: driver.phone,
+    license_number: driver.licenseNumber,
+    license_expiry: driver.licenseExpiry,
+    status: driver.status,
+  });
 
-    const newDriver: Driver = {
-      ...driver,
-      id: newId,
-      completedTrips: 0
-    };
+  return response.data.driver;
+},
 
-    list.push(newDriver);
-    saveToStorage(KEYS.DRIVERS, list);
-    return newDriver;
-  },
+  updateDriver: async (id: number, driver: any) => {
+  const response = await axios.put(`/drivers/${id}`, {
+    full_name: driver.name,
+    phone_number: driver.phone,
+    license_number: driver.licenseNumber,
+    license_expiry: driver.licenseExpiry,
+    status: driver.status,
+  });
 
-  updateDriver: async (id: string, updated: Partial<Driver>): Promise<Driver> => {
-    await delay(250);
-    const list = getFromStorage<Driver>(KEYS.DRIVERS);
-    const index = list.findIndex((d) => d.id === id);
-    if (index === -1) {
-      throw new Error('404: Driver not found');
-    }
+  return response.data.driver;
+},
 
-    list[index] = { ...list[index], ...updated };
-    saveToStorage(KEYS.DRIVERS, list);
-    return list[index];
-  },
-
-  deleteDriver: async (id: string): Promise<boolean> => {
-    await delay(200);
-    const list = getFromStorage<Driver>(KEYS.DRIVERS);
-    const filtered = list.filter((d) => d.id !== id);
-    if (filtered.length === list.length) {
-      throw new Error('404: Driver not found');
-    }
-    saveToStorage(KEYS.DRIVERS, filtered);
-    return true;
-  },
+  deleteDriver: async (id: number) => {
+  await axios.delete(`/drivers/${id}`);
+  return true;
+},
 
 
   // --- TRIPS API ---
-  getTrips: async (): Promise<Trip[]> => {
-    await delay(300);
-    return getFromStorage<Trip>(KEYS.TRIPS);
-  },
+ getTrips: async () => {
+  const response = await axios.get("/trips");
 
-  createTrip: async (trip: Omit<Trip, 'id' | 'actualArrival'>): Promise<Trip> => {
-    await delay(400);
-    const tripsList = getFromStorage<Trip>(KEYS.TRIPS);
-    const vehicles = getFromStorage<Vehicle>(KEYS.VEHICLES);
-    const drivers = getFromStorage<Driver>(KEYS.DRIVERS);
+  return response.data.trips;
+},
 
-    const vehicle = vehicles.find((v) => v.id === trip.vehicleId);
-    const driver = drivers.find((d) => d.id === trip.driverId);
+  createTrip: async (trip: any) => {
+  const response = await axios.post("/trips", {
+    source: trip.origin,
+    destination: trip.destination,
+    vehicle_id: trip.vehicleId,
+    driver_id: trip.driverId,
+    cargo_weight: trip.cargoWeight,
+    planned_distance: trip.distance,
+    revenue: trip.revenue,
+  });
 
-    // Business Validation Rules (PDF Section 15 & 7)
-    if (!trip.origin || !trip.destination || !trip.vehicleId || !trip.driverId || !trip.cargoDescription) {
-      throw new Error('400: Required fields are missing');
-    }
-    if (!vehicle) {
-      throw new Error('404: Assigned vehicle not found');
-    }
-    if (!driver) {
-      throw new Error('404: Assigned driver not found');
-    }
-
-    // 1. Vehicle in maintenance cannot be assigned
-    if (vehicle.status === 'In Maintenance') {
-      throw new Error('400: Selected vehicle is In Maintenance and cannot be assigned to a trip');
-    }
-    // 2. Out of service vehicle cannot be assigned
-    if (vehicle.status === 'Out of Service') {
-      throw new Error('400: Selected vehicle is Out of Service');
-    }
-    // 3. Vehicle already on active trip
-    if (vehicle.status === 'On Trip') {
-      throw new Error('400: Selected vehicle is already on another active trip');
-    }
-    // 4. Driver with expired license cannot be assigned
-    const today = new Date();
-    if (new Date(driver.licenseExpiry) < today) {
-      throw new Error('400: Selected driver has an expired license and is ineligible for dispatch');
-    }
-    // 5. Unavailable driver (Off Duty, Suspended)
-    if (driver.status === 'Suspended') {
-      throw new Error('400: Selected driver is Suspended');
-    }
-    if (driver.status === 'Off Duty') {
-      throw new Error('400: Selected driver is Off Duty');
-    }
-    // 6. Driver already on active trip
-    if (driver.status === 'On Trip') {
-      throw new Error('400: Selected driver is already assigned to another active trip');
-    }
-    // 7. Cargo weight cannot exceed vehicle capacity
-    if (trip.cargoWeight > vehicle.capacity) {
-      throw new Error(`400: Cargo weight (${trip.cargoWeight}T) exceeds the vehicle's max capacity (${vehicle.capacity}T)`);
-    }
-
-    const newId = `TRP-0${tripsList.length + 1}`;
-    const newTrip: Trip = {
-      ...trip,
-      id: newId,
-      actualArrival: null
-    };
-
-    // Update statuses dynamically to maintain logical consistency (Section 24)
-    if (trip.status === 'In Transit' || trip.status === 'Dispatched') {
-      vehicle.status = 'On Trip';
-      driver.status = 'On Trip';
-    } else if (trip.status === 'Scheduled') {
-      // Just keep them, but link them
-    }
-
-    // Save
-    tripsList.push(newTrip);
-    saveToStorage(KEYS.TRIPS, tripsList);
-
-    // Update associated vehicles & drivers list
-    const updatedVehicles = vehicles.map((v) => (v.id === vehicle.id ? vehicle : v));
-    const updatedDrivers = drivers.map((d) => (d.id === driver.id ? driver : d));
-    saveToStorage(KEYS.VEHICLES, updatedVehicles);
-    saveToStorage(KEYS.DRIVERS, updatedDrivers);
-
-    return newTrip;
-  },
+  return response.data.trip;
+},
 
   updateTripStatus: async (id: string, newStatus: Trip['status']): Promise<Trip> => {
     await delay(300);
@@ -305,90 +233,29 @@ export const api = {
 
 
   // --- MAINTENANCE API ---
-  getMaintenance: async (): Promise<Maintenance[]> => {
-    await delay(250);
-    return getFromStorage<Maintenance>(KEYS.MAINTENANCE);
-  },
+  getMaintenance: async () => {
+  const response = await axios.get("/maintenance");
 
-  createMaintenance: async (maint: Omit<Maintenance, 'id'>): Promise<Maintenance> => {
-    await delay(300);
-    const list = getFromStorage<Maintenance>(KEYS.MAINTENANCE);
-    const vehicles = getFromStorage<Vehicle>(KEYS.VEHICLES);
-    const vehicle = vehicles.find((v) => v.id === maint.vehicleId);
+  return response.data.records;
+},
 
-    if (!maint.vehicleId || !maint.type || !maint.scheduledDate) {
-      throw new Error('400: Required fields are missing');
-    }
-    if (!vehicle) {
-      throw new Error('404: Vehicle not found');
-    }
+  createMaintenance: async (maintenance: any) => {
+  const response = await axios.post("/maintenance", {
+    vehicle_id: maintenance.vehicleId,
+    maintenance_type: maintenance.type,
+    description: maintenance.description,
+    maintenance_cost: maintenance.cost,
+    start_date: maintenance.scheduledDate,
+  });
 
-    // A vehicle assigned to an active trip should not go in maintenance
-    if (vehicle.status === 'On Trip') {
-      throw new Error('400: Selected vehicle is currently on a trip and cannot enter maintenance yet');
-    }
+  return response.data.maintenance;
+},
 
-    const newId = `MNT-0${list.length + 1}`;
-    const newMaint: Maintenance = {
-      ...maint,
-      id: newId
-    };
+  updateMaintenanceStatus: async (id: number) => {
+  const response = await axios.patch(`/maintenance/${id}/complete`);
 
-    list.push(newMaint);
-    saveToStorage(KEYS.MAINTENANCE, list);
-
-    // Dynamic sync: if maintenance status is In Progress, mark vehicle as "In Maintenance" (Section 5 & 8)
-    if (maint.status === 'In Progress') {
-      vehicle.status = 'In Maintenance';
-      const updatedVehicles = vehicles.map((v) => (v.id === vehicle.id ? vehicle : v));
-      saveToStorage(KEYS.VEHICLES, updatedVehicles);
-    }
-
-    return newMaint;
-  },
-
-  updateMaintenanceStatus: async (id: string, status: Maintenance['status']): Promise<Maintenance> => {
-    await delay(250);
-    const list = getFromStorage<Maintenance>(KEYS.MAINTENANCE);
-    const index = list.findIndex((m) => m.id === id);
-    if (index === -1) {
-      throw new Error('404: Maintenance record not found');
-    }
-
-    const maint = list[index];
-    maint.status = status;
-    if (status === 'Completed') {
-      maint.completionDate = new Date().toISOString().split('T')[0];
-    }
-
-    saveToStorage(KEYS.MAINTENANCE, list);
-
-    // Sync vehicle status
-    const vehicles = getFromStorage<Vehicle>(KEYS.VEHICLES);
-    const vIndex = vehicles.findIndex((v) => v.id === maint.vehicleId);
-    if (vIndex !== -1) {
-      const vehicle = vehicles[vIndex];
-      if (status === 'In Progress') {
-        vehicle.status = 'In Maintenance';
-        vehicle.lastServiceDate = new Date().toISOString().split('T')[0];
-      } else if (status === 'Completed') {
-        vehicle.status = 'Available';
-        vehicle.lastServiceDate = new Date().toISOString().split('T')[0];
-        // Schedule next service in 180 days
-        const nextSec = new Date();
-        nextSec.setDate(nextSec.getDate() + 180);
-        vehicle.nextServiceDate = nextSec.toISOString().split('T')[0];
-      } else {
-        // Scheduled/Overdue but not active yet
-        if (vehicle.status === 'In Maintenance') {
-          vehicle.status = 'Available';
-        }
-      }
-      saveToStorage(KEYS.VEHICLES, vehicles);
-    }
-
-    return maint;
-  },
+  return response.data.record;
+},
 
   deleteMaintenance: async (id: string): Promise<boolean> => {
     await delay(200);
@@ -403,38 +270,27 @@ export const api = {
 
 
   // --- EXPENSES API ---
-  getExpenses: async (): Promise<Expense[]> => {
-    await delay(250);
-    return getFromStorage<Expense>(KEYS.EXPENSES);
-  },
+  getExpenses: async () => {
+  const response = await axios.get("/expenses");
 
-  createExpense: async (expense: Omit<Expense, 'id'>): Promise<Expense> => {
-    await delay(300);
-    const list = getFromStorage<Expense>(KEYS.EXPENSES);
+  return response.data.expenses;
+},
 
-    if (!expense.vehicleId || !expense.driverId || !expense.category || expense.amount <= 0) {
-      throw new Error('400: Invalid or missing fields for expense creation');
-    }
+  createExpense: async (expense: any) => {
+  const response = await axios.post("/expenses", {
+    vehicle_id: expense.vehicleId,
+    driver_id: expense.driverId,
+    category: expense.category,
+    amount: expense.amount,
+    description: expense.description,
+    expense_date: expense.expenseDate,
+  });
 
-    const newId = `EXP-0${list.length + 1}`;
-    const newExpense: Expense = {
-      ...expense,
-      id: newId
-    };
+  return response.data.expense;
+},
 
-    list.push(newExpense);
-    saveToStorage(KEYS.EXPENSES, list);
-    return newExpense;
-  },
-
-  deleteExpense: async (id: string): Promise<boolean> => {
-    await delay(200);
-    const list = getFromStorage<Expense>(KEYS.EXPENSES);
-    const filtered = list.filter((e) => e.id !== id);
-    if (filtered.length === list.length) {
-      throw new Error('404: Expense record not found');
-    }
-    saveToStorage(KEYS.EXPENSES, filtered);
-    return true;
-  }
+  deleteExpense: async (id: number) => {
+  await axios.delete(`/expenses/${id}`);
+  return true;
+},
 };

@@ -11,8 +11,8 @@ const Login: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('admin@transitops.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -243,45 +243,7 @@ const Login: React.FC = () => {
           </form>
 
           {/* Subtle Demo Credentials Drawer */}
-          <div className="mt-8 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5 font-display">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse-slow" />
-                Demo Operator Credentials
-              </h4>
-              <button
-                type="button"
-                onClick={handleAutofill}
-                className="text-[10px] font-bold text-brand-600 hover:text-brand-700 hover:underline uppercase tracking-wider cursor-pointer focus:outline-hidden bg-transparent border-none"
-              >
-                Autofill
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-xs font-mono text-slate-600">
-              <div 
-                onClick={() => {
-                  navigator.clipboard.writeText('admin@transitops.com');
-                  toast('Email copied to clipboard!', 'success');
-                }}
-                className="group cursor-pointer hover:bg-slate-100/80 p-2 rounded-lg border border-transparent hover:border-slate-200 transition-all duration-150"
-                title="Click to copy"
-              >
-                <span className="text-[10px] text-slate-400 block uppercase font-sans font-bold group-hover:text-brand-500 transition-colors">Email</span>
-                <span className="font-semibold select-all text-slate-700 break-all">admin@transitops.com</span>
-              </div>
-              <div 
-                onClick={() => {
-                  navigator.clipboard.writeText('admin123');
-                  toast('Password copied to clipboard!', 'success');
-                }}
-                className="group cursor-pointer hover:bg-slate-100/80 p-2 rounded-lg border border-transparent hover:border-slate-200 transition-all duration-150"
-                title="Click to copy"
-              >
-                <span className="text-[10px] text-slate-400 block uppercase font-sans font-bold group-hover:text-brand-500 transition-colors">Password</span>
-                <span className="font-semibold select-all text-slate-700">admin123</span>
-              </div>
-            </div>
-          </div>
+     
           
         </div>
       </div>
