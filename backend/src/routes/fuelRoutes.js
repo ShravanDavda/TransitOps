@@ -8,6 +8,7 @@ require("../middleware/authMiddleware");
 const {
 createFuelLog,
 getAllFuelLogs,
+deleteFuelLogController,
 } = require("../controllers/fuelController");
 
 router.post(
@@ -21,5 +22,14 @@ router.get(
 authenticate,
 getAllFuelLogs
 );
+
+router.delete(
+"/:id",
+authenticate,
+deleteFuelLogController
+);
+
+
+
 
 module.exports = router;

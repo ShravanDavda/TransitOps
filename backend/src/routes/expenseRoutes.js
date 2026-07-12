@@ -8,6 +8,7 @@ require("../middleware/authMiddleware");
 const {
 createExpense,
 getAllExpenses,
+deleteExpenseController,
 } = require("../controllers/expenseController");
 
 router.post(
@@ -21,5 +22,14 @@ router.get(
 authenticate,
 getAllExpenses
 );
+
+
+router.delete(
+"/:id",
+authenticate,
+deleteExpenseController
+);
+
+
 
 module.exports = router;

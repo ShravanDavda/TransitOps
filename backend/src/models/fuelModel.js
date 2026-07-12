@@ -43,10 +43,36 @@ const getFuelLogs = async () => {
   return result.rows;
 };
 
+const getFuelLogById = async (id) => {
+
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM fuel_logs
+    WHERE id = $1;
+    `,
+    [id]
+  );
+
+  return result.rows[0];
+
+};
 
 
+const deleteFuelLog = async (id) => {
 
+  const result = await pool.query(
+    `
+    DELETE FROM fuel_logs
+    WHERE id = $1
+    RETURNING *;
+    `,
+    [id]
+  );
 
+  return result.rows[0];
+
+};
 
 
 
@@ -62,4 +88,6 @@ const getFuelLogs = async () => {
 module.exports = {
   addFuelLog,
   getFuelLogs,
+  getFuelLogById,
+  deleteFuelLog,
 };

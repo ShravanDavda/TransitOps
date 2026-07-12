@@ -1,8 +1,9 @@
 const {
   addExpense,
   getExpenses,
+  getExpenseById,
+  deleteExpense,
 } = require("../models/expenseModel");
-
 const {
   validateExpense,
 } = require("../validations/expenseValidation");
@@ -67,7 +68,53 @@ const getAllExpenses = async (req, res) => {
 
 };
 
+
+const deleteExpenseController = async (req,res)=>{
+
+  try{
+
+    const expense =
+    await getExpenseById(req.params.id);
+
+    if(!expense){
+
+      return res.status(404).json({
+        success:false,
+        message:"Expense not found",
+      });
+
+    }
+
+    await deleteExpense(req.params.id);
+
+    return res.status(200).json({
+      success:true,
+      message:"Expense deleted",
+    });
+
+  }catch(error){
+
+    console.error(error);
+
+    return res.status(500).json({
+      success:false,
+      message:"Internal Server Error",
+    });
+
+  }
+
+};
+
+
+
+
+
+
+
+
+
 module.exports = {
   createExpense,
   getAllExpenses,
+  deleteExpenseController,
 };

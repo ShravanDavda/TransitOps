@@ -43,6 +43,42 @@ const getExpenses = async () => {
 
 
 
+const getExpenseById = async (id) => {
+
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM expenses
+    WHERE id = $1;
+    `,
+    [id]
+  );
+
+  return result.rows[0];
+
+};
+
+
+const deleteExpense = async (id) => {
+
+  const result = await pool.query(
+    `
+    DELETE FROM expenses
+    WHERE id = $1
+    RETURNING *;
+    `,
+    [id]
+  );
+
+  return result.rows[0];
+
+};
+
+
+
+
+
+
 
 
 
@@ -51,4 +87,6 @@ const getExpenses = async () => {
 module.exports = {
   addExpense,
   getExpenses,
+  getExpenseById,
+  deleteExpense,
 };

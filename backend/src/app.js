@@ -11,6 +11,16 @@ require("./routes/fuelRoutes");
 const expenseRoutes =
 require("./routes/expenseRoutes");
 
+const dashboardRoutes =
+require("./routes/dashboardRoutes");
+
+
+
+
+
+
+
+
 
 
 
@@ -35,6 +45,15 @@ app.use(
 "/api/expenses",
 expenseRoutes
 );
+
+app.use(
+"/api/dashboard",
+dashboardRoutes
+);
+
+
+
+
 
 
 
